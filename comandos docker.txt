@@ -1,0 +1,39 @@
+======= DOCKERFILE =========
+FROM node:14.14.0
+
+RUN mkdir products-integration-customers
+
+COPY . /products-integration-customers
+
+WORKDIR /products-integration-customers
+
+RUN npm install
+
+CMD node index.js
+================
+
+* '-a' = ver todos *
+
+1. Criar imagem do docker:
+> sudo docker build -t products-integration-customers .
+
+/* verificar imagem:
+*  > sudo docker images
+*/
+
+2. Criar container baseado na imagem:
+> sudo docker run --name products-integraton-customers -d products-integraton-customers
+
+/* verificar container:
+*  > sudo docker ps
+*/
+
+3. Acessar console do docker:
+> sudo docker exec -it products-integration-customers /bin/bash
+
+4. Acessar logs do container
+> sudo docker logs container_id
+
+5. Executar arquivo docker-compose.yaml
+> sudo docker-compose up 
+> sudo docker-compose -f docker-compose.yaml up

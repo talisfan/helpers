@@ -1,0 +1,16 @@
+// REMOVER ULTIMO CARACTER
+
+let str = "teste";
+let lastChar = str.slice(-1);
+
+if (lastChar == ',') {
+    str = str.slice(0, -1);
+}
+
+
+// TESTAR SE VARIAVEL É NUMERO
+
+const numero = '12345';
+if (!isNaN(numero)) {
+    // se é um numero vai cari aqui
+}
