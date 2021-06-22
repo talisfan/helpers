@@ -29,3 +29,8 @@ exports.printResponse = (res)=>{
 exports.sleep = (milliseconds) =>{
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
+
+exports.ramdomString = ()=>{
+    // toString(36) == base36 || toString(16) == hexadecimal
+    return Math.random().toString(16).substr(2); 
+}
