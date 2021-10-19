@@ -1,5 +1,4 @@
-module.exports = {
-    dcms: require('./dcms'),
+module.exports = {    
     vtex:require('./vtex'),
-    databaseQuerys: require('./databaseQuerys'),
+    databaseQuerys: require('./databaseQuerys')
 }

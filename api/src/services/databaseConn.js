@@ -1,40 +1,45 @@
 const mysql = require('../bin/mysql');
 const utils_functions = require('../static/utils_functions');
 
-module.exports = async (query)=>{    
+module.exports = (queryValue)=>{    
     return new Promise((resolve, reject)=>{
+        console.log('\n[Database]: Conectando com o banco de dados...');
+
         mysql.getConnection((error, conn) => {
 
             if(error){                
                 error = utils_functions.printError({                    
                     status: 502,                    
-                    operation: 'Erro ao conectar com o banco de dados.',
+                    operation: '[Database]: Erro ao conectar com o banco de dados.',
                     errorMessage: error
                 });
                 return reject(error);
             }
             
-            console.log('[Database]: Conectado!');        
+            console.log('[Database]: Conectado!');   
             
-            conn.query(query, (err, result, field) => {
+            let callbackQuerys = (err, result, field)=>{
                 conn.release();
-    
+        
                 if(err){
                     err = utils_functions.printError({                        
                         status: 502,                                    
-                        operation: 'Erro ao executar query no banco de dados.',
+                        operation: '[Database]: Erro ao executar query no banco de dados.',
                         errorMessage: err
                     });                    
                     return reject(err);
                 }
-    
-                if (result.length == 0) {                    
-                    console.log('\n[Database]: Sucesso! - Sem registros.');
-                }else{
-                    console.log('\n[Database]: Sucesso! - Resultado:\n', result);                                        
-                }
+        
+                console.log('[Database]: Sucesso ao executar query!');
+                //console.debug(result);
                 resolve(result);
-            });    
+            }
+            
+            if(queryValue.values){
+                conn.query(queryValue.query, queryValue.values, callbackQuerys)  
+            }else{
+                conn.query(queryValue.query, callbackQuerys);    
+            }
         });
     });
 }

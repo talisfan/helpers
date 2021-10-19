@@ -27,25 +27,3 @@ exports.login = async (req, res, next)=>{
         return res.status(200).send();
     }
 }
-
-exports.checkCodes = async (req, res, next)=>{
-    utils_functions.printRequest(req);
-    
-    if(!req.params.codCredenciado){
-        return res.status(400).send();
-    }
-
-    //global.dcms.access_token = await Services.dcms.getToken();
-
-    const dentista = null;//await Services.dcms.getDentist({ codCredenciado: req.params.codCredenciado });
-
-    if(!dentista){
-        return res.status(404).send();
-    }
-
-    if(dentista.status.toLowerCase() != "ativo"){
-        return res.status(403).send("Usuário inativo.")
-    }else{
-        return res.status(200).send();
-    }
-}
