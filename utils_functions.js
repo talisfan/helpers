@@ -34,3 +34,11 @@ exports.ramdomString = ()=>{
     // toString(36) == base36 || toString(16) == hexadecimal
     return Math.random().toString(16).substr(2); 
 }
+
+exports.findAllChars = (str, char, group = false)=>{    
+    var regex = RegExp(group ? `(${char})` : `[${char}]`, 'gim'), result, indexes = [];
+    while ( (result = regex.exec(str)) ) {
+        indexes.push(result.index);
+    }
+    return indexes;
+}
