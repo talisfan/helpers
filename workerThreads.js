@@ -1,4 +1,4 @@
-const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
+const { Worker, isMainThread, parentPort, workerData, threadId } = require('node:worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 
@@ -23,6 +23,6 @@ if(isMainThread){
 
     console.log('FINNALY');
 }else{
-    console.log("IT'S NOT MAIN THREAD");
+    console.log("IT'S NOT MAIN THREAD - ID: " + threadId);
     parentPort.postMessage(workerData + 2);
 }
