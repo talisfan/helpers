@@ -2,7 +2,7 @@
 // e depois envia um arquivo (nesse caso XML) como argumento para o google drive
 
 const fs = require("fs");
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 
 function xmlUpload(fileName, filePath, callback){
     require("./gdrive-auth")((auth) => {

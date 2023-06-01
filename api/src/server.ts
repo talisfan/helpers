@@ -1,52 +1,69 @@
-import express, { Request, Response, NextFunction } from "express";
-import { oauthRoutes } from './routes';
+import 'express-async-errors';
+import 'dotenv/config';
+
+import { isAuthenticated, rolesControl } from "./middlewares/auth";
+import express, { Request, Response, NextFunction } from 'express';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+
+import routes from './routes';
+
+const ENV_IS_PROD = String(process.env.NODE_ENV).includes('prod');
 
 const app = express();
-
-// CORS
-app.use(function (req: Request, res: Response, next: NextFunction) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', '*');
-    if (req.method == 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'POST, GET');
-        return res.status(200).send();
-
-    }
-
+app.use(morgan('dev'));
+app.use(helmet());
+app.use(cookieParser());
+app.use(express.json());
+app.use(cors());
+app.use((req: Request, res: Response, next: NextFunction)=>{
+    res.set('Access-Control-Allow-Origin', ENV_IS_PROD ? 'https://' : '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+    res.set('Access-Control-Allow-Headers', ['authorization', 'api_key']);
     next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.get('/healthcheck', (req: Request, res: Response) => {
+    return res.status(200).send(
+        `${ENV_IS_PROD ? 'Produção' : 'Desenvolvimento'} OK`
+    );
+});
 
-app.use('/oauth', oauthRoutes);
+app.use(routes);
 
-const healthcheck = (req: Request, res: Response, next: NextFunction) => {
-    return res.status(200).send('Server running')
-};
+// Middleware secure control
+app.use(rolesControl);
 
-app.get('/', healthcheck);
-app.get('/healthcheck', healthcheck);
-
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    if (!error.status) {
-        error.status = 500;
-    }
-    console.error(`[ERROR]: ${req.method.toUpperCase()} ${req.path} =>`, JSON.stringify(error));
-
-    res.status(error.status);
+app.use((error: any, req: Request, res: Response, next: NextFunction)=>{
+    console.error(`[ERROR]: ${req.path} => `, error);
+    let status = error.status || 500;
+    let { message } = error;
     delete error.status;
-    return res.send(error.body || error.message || error);
+
+    const { errorMessage } = error;
+    if(errorMessage && typeof errorMessage == 'object'){
+        for(const prop in errorMessage){
+            if(prop.includes('sql')){
+                delete error.errorMessage[prop];
+            }
+        };
+    }else if(message && message.includes('prisma')){
+        status = 502;
+        message = 'Error connection Database';
+    }
+
+    return res.status(status).send({
+        error: true,
+        message
+    });
 });
 
 app.use((req: Request, res: Response) => {
     return res.status(404).send();
 });
 
-const port = Number(process.env.SERVER_PORT) || 80;
-app.listen(port);
-console.log(`Servidor rodando na porta ${port}!`);
-
-if (process.env.NODE_ENV == 'dev') {
-    console.log('!!Ambiente DEV!!')
-}
+app.listen(process.env.PORT_SERVER || 3001, () => {
+    console.log(`[${String(process.env.NODE_ENV).toUpperCase()}] 🚪 porta ${process.env.PORT_SERVER || 3001}`);
+});

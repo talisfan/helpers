@@ -10,9 +10,11 @@ export default abstract class DbConn {
 
     protected abstract closeConnection(): Promise<void>;
 
-    abstract get(keys: string[], ...optionalParams: any[]): Promise<any>;
+    abstract get(id: string, fields?: string[], ...optionalParams: any[]): Promise<any>;
 
     abstract insert(keyValues: { [key: string]: any; }, ...optionalParams: any[]): Promise<any>;
 
     abstract delete(keys: string[], whereClosure?: any, ...optionalParams: any[]): Promise<any>;
+
+    abstract search(keys: string[], whereClosure?: any, orderBy?: any, ...optionalParams: any[]): Promise<any>;
 }
