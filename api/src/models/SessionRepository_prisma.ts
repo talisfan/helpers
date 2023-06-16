@@ -1,12 +1,16 @@
 import { Session } from "@prisma/client";
 import { buildSqlToPrismaClosures, prisma } from "../modules/prisma";
 
+const ALL_RELATIONSHIPS = {
+    user: true,
+    exemplo2: true
+}
 export default class SessionRepository{
 
-    async get(sessionId: string): Promise<string>{
+    async get(id: string): Promise<string>{
         const value = await prisma.sessions.findFirst({ 
-            where: { sessionId },
-            include: { user: true }
+            where: { id },
+            include: ALL_RELATIONSHIPS
         });
 
         return value;
@@ -23,5 +27,31 @@ export default class SessionRepository{
 
     async delete(id: string){
         return await prisma.sessions.delete({ where: { id } });
+    }
+
+    async update(id: string, data: Session) {
+        
+        const relations = Object.entries(data)
+        .reduce((prev: any, [key, value])=>{
+            if(ALL_RELATIONSHIPS[key]){
+                const id = value['id'] || undefined;
+                delete value['id'];
+
+                prev[key] = {
+                    upsert: {
+                      where: { id },
+                      update: value,
+                      create: value
+                    }
+                }
+            }
+            return prev;
+        }, {});
+
+        return await prisma.architecturalProjects.update({ 
+            data: { ...data, ...relations }, 
+            where: { projectID: id },
+            include: ALL_RELATIONSHIPS
+        });
     }
 }

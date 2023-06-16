@@ -12,7 +12,11 @@ type OrderByPrisma = {
     [key: string]: 'asc' | 'desc'
 }
 
-export function buildSqlToPrismaClosures (where?: string, orderBy?: string): {where: WherePrisma, orderBy: OrderByPrisma}{
+export function buildSqlToPrismaClosures (
+    where?: string | any, 
+    orderBy?: string | any
+): {where: WherePrisma, orderBy: OrderByPrisma}{
+    
     let whereObj: WherePrisma = undefined;
     let orderByObj: OrderByPrisma = undefined;
 
@@ -40,8 +44,7 @@ export function buildSqlToPrismaClosures (where?: string, orderBy?: string): {wh
     
         if(charOp === '='){
             obj[key] = {
-                equals: value,
-                mode: 'insensitive'
+                equals: value
             };
         }else if(charOp === 'not'){
             if(value === null){
@@ -67,34 +70,42 @@ export function buildSqlToPrismaClosures (where?: string, orderBy?: string): {wh
     }
 
     if(where){
-        whereObj = {};
-
-        where.split(' and ').forEach((value, index, arr) =>{
-            if(arr.length === 1){
-                whereObj = formatObjOperator(value);
-            }else if(value.includes(' or ')){
-                if(!whereObj['OR'])
-                    whereObj['OR'] = [];
-
-                value.split(' or ').forEach((value)=>{
-                    whereObj.OR.push(formatObjOperator(value));
-                })            
-            }else{
-                if(!whereObj['AND'])
-                    whereObj['AND'] = [];
-
-                whereObj.AND.push(formatObjOperator(value));
-            }
-        });
+        if(typeof where === 'string'){
+            whereObj = {};
+    
+            where.split(' and ').forEach((value, index, arr) =>{
+                if(arr.length === 1 && !value.includes(' or ')){
+                    whereObj = formatObjOperator(value);
+                }else if(value.includes(' or ')){
+                    if(!whereObj['OR'])
+                        whereObj['OR'] = [];
+    
+                    value.split(' or ').forEach((value)=>{
+                        whereObj.OR.push(formatObjOperator(value));
+                    })            
+                }else{
+                    if(!whereObj['AND'])
+                        whereObj['AND'] = [];
+    
+                    whereObj.AND.push(formatObjOperator(value));
+                }
+            });
+        }else {
+            whereObj = where;
+        }
     }
 
     if(orderBy){
-        const field: string = orderBy.split(' ')[0];
-        const order = <'asc'|'desc'> orderBy.split(' ')[1].toLowerCase();
-        orderByObj = (field && order) 
-            ? { [field]: order } 
-            : {}
-        ;
+        if(typeof orderBy === 'string'){
+            const field: string = orderBy.split(' ')[0];
+            const order = <'asc'|'desc'> orderBy.split(' ')[1].toLowerCase();
+            orderByObj = (field && order) 
+                ? { [field]: order } 
+                : {}
+            ;
+        }else{
+            orderByObj = orderBy;
+        }
     }
 
     return {

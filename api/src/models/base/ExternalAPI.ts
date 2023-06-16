@@ -65,20 +65,29 @@ export default class ExternalApi {
         }
     }
 
-    protected async doRequest(requestObject: RequestObject, operationLog: string): Promise<ResponseObject>{
+    protected async doRequest(requestObj: RequestObject, operationLog: string): Promise<ResponseObject>{
 
+        if(!requestObj.headers){
+            requestObj.headers = {};
+        }
+
+        Object.assign(requestObj.headers, this.headers);
+        
+        if(!requestObj.url.includes('http')){
+            requestObj.url = this.baseUrlApi + requestObj.url;
+        }
         let response;
 
         if(this.autoRetry){
             for(let i = 1; i <= this.maxRetries; i++){
                 try{
-                    response = await this.handlingRequest(requestObject, operationLog);
+                    response = await this.handlingRequest(requestObj, operationLog);
                 }catch(error){
                     if(i == this.maxRetries) throw(error);
                 }
             }
         }else{
-            response = await this.handlingRequest(requestObject, operationLog);
+            response = await this.handlingRequest(requestObj, operationLog);
         }
         
         return <ResponseObject> response;
