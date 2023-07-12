@@ -16,16 +16,11 @@ app.use((req, res, next) => {
 
 app.use(express.urlencoded({ extended: false }));
 
-app.use((error, req, res, next) => {
-
-    if(!error.statusCode){
-        error.statusCode = 500;
-    }
-
-    console.error('\n===== ERROR =====');
-    console.error(JSON.stringify(error));
-        
-    return res.status(error.statusCode).send(error);
+app.use(function (error, req, res, next) {
+    const status = error?.status || error?.response?.status || 500
+    console.error(error, status);
+    res.status(status);
+    return res.send(error?.response?.data || error?.data || error?.body || error?.message || error);
 });
 
 app.use('/', express.Router().get('/', async(req, res)=>{
