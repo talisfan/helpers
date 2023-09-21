@@ -12,11 +12,17 @@ type OrderByPrisma = {
     [key: string]: 'asc' | 'desc'
 }
 
-export function buildSqlToPrismaClosures (
-    where?: string | any, 
-    orderBy?: string | any
-): {where: WherePrisma, orderBy: OrderByPrisma}{
-    
+const booleanify = (value: string): boolean => {
+    const truthy: string[] = [
+        'true',
+        'True',
+        '1'
+    ]
+
+    return truthy.includes(value)
+}
+
+export function buildSqlToPrismaClosures (where?: string | any, orderBy?: string | any): {where: WherePrisma, orderBy: OrderByPrisma}{
     let whereObj: WherePrisma = undefined;
     let orderByObj: OrderByPrisma = undefined;
 
@@ -91,7 +97,22 @@ export function buildSqlToPrismaClosures (
                 }
             });
         }else {
-            whereObj = where;
+            whereObj = {};
+
+            for(let key in where){
+                key = key.trim();
+
+                let value = where[key];
+                if(typeof value == 'string'){
+                    value = value.trim().replace(/['"]/gim, '');
+                    if(value.toLowerCase() === 'null')
+                        value = null;
+                    else if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+                        value = booleanify(value);
+                }
+                
+                whereObj[key] = value;
+            }
         }
     }
 
