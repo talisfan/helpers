@@ -46,7 +46,7 @@ export function buildSqlToPrismaClosures (where?: string | any, orderBy?: string
         if(value.toLowerCase() === 'null')
             value = null;
         else if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
-            value = Boolean(value);
+            value = booleanify(value);
     
         if(charOp === '='){
             obj[key] = {
@@ -105,10 +105,14 @@ export function buildSqlToPrismaClosures (where?: string | any, orderBy?: string
                 let value = where[key];
                 if(typeof value == 'string'){
                     value = value.trim().replace(/['"]/gim, '');
-                    if(value.toLowerCase() === 'null')
+                    if(value.toLowerCase() === 'null'){
                         value = null;
-                    else if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false')
+                    }else if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false'){
                         value = booleanify(value);
+                    }else if(value.includes('< ') || value.includes('> ')){
+                        const operator = value.split(' ');
+                        value = { [ (operator[0] == '<') ? 'lte' : 'gte' ]: operator[1] }
+                    }
                 }
                 
                 whereObj[key] = value;
