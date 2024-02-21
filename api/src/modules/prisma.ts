@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 export const prisma = new PrismaClient();
+import moment from 'moment';
 
 type WherePrisma = {
     [key: string]: any,
@@ -109,6 +110,18 @@ export function buildSqlToPrismaClosures (where?: string | any, orderBy?: string
                         value = null;
                     }else if(value.toLowerCase() === 'true' || value.toLowerCase() === 'false'){
                         value = booleanify(value);
+                    }else if(value == 'not null'){
+                        value = { not: null };
+                    }else if(value.includes('range(')){
+                        const [startDate, endDate] = value.replace(/range|\(|\)/g, '').split(';');
+                        if(!moment(startDate).isValid() || !moment(endDate).isValid()){
+                            throw({ status: 400, message: 'Invalid date format - Only ISOString (YYYY-MM-DDTHH:mm:ss) format is accepted' });
+                        }
+                        value = [ 
+                            { [key]: { 'gte': (startDate.length == 19) ? startDate + '.000Z' : startDate }}, 
+                            { [key]: { 'lte': (endDate.length == 19) ? endDate + '.000Z' : endDate }} 
+                        ];
+                        key = 'AND';
                     }else if(value.includes('< ') || value.includes('> ')){
                         const operator = value.split(' ');
                         value = { [ (operator[0] == '<') ? 'lte' : 'gte' ]: operator[1] }
