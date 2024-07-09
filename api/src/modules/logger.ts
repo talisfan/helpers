@@ -22,7 +22,7 @@ function redirectConsole(outputFunction, prefix) {
             })
             .join(" ")
         ;
-        const formattedMessage = `[${new Date().toISOString()}][${prefix}][Thread-${threadId}]${logMessage[0] != '[' ? ' ' + logMessage : logMessage}`;
+        const formattedMessage = `[${new Date().toISOString()}][${String(process.env.NODE_ENV || 'dev').toUpperCase()}][${prefix}][Thread-${threadId}]${logMessage[0] != '[' ? ' ' + logMessage : logMessage}`;
         
         if(WRITE_LOGS) fs.appendFileSync(logFilePath, formattedMessage + '\n');
 
