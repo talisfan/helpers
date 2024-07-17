@@ -55,6 +55,13 @@ for(let i = 0; i < collection.item.length; i++){
         collection.item.push(dir)
     }
     
+    template.name = "Get my Data";
+    template.request.method = "GET";
+    template.request.url.raw = `{{baseUrl}}/${route}`;
+    template.request.url.path = [ route ];
+
+    dir.item.push(JSON.parse(JSON.stringify(template)));
+
     template.name = "Get by ID";
     template.request.method = "GET";
     template.request.url.raw = `{{baseUrl}}/${route}/:id`;
