@@ -127,6 +127,18 @@ export function buildSqlToPrismaClosures (where?: string | any, orderBy?: string
                         value = { [ (operator[0] == '<') ? 'lte' : 'gte' ]: operator[1] }
                     }
                 }
+
+                if (
+                    (
+                        key.toLocaleUpperCase().includes('qnt') || 
+                        key.toLocaleUpperCase().includes('quantity') || 
+                        key.toLocaleUpperCase().includes('value') 
+                    ) 
+                    && 
+                    typeof value === 'string'
+                ) {
+                    value = Number(value);
+                }
                 
                 whereObj[key] = value;
             }
