@@ -1,5 +1,5 @@
 import DbConn from "./DbConn";
-import Redis from "./entities/Redis";
+import Redis from "../entities/Redis";
 
 export default class SessionRepository{
 

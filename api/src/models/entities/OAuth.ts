@@ -1,5 +1,5 @@
 import * as jwtLib from 'jsonwebtoken';
-import SessionRepository from '../SessionRepository';
+import SessionRepository from '../repositories/SessionRepository';
 
 export default class OAuth {
     private sessionRepository: SessionRepository;
