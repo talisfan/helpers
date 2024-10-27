@@ -13,6 +13,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 
 RUN npm run build
 
+# manter somente se estiver usando prisma
 RUN npx prisma generate
 
 FROM node:16.20-alpine
