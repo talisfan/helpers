@@ -1,6 +1,11 @@
 import type { Request } from 'express';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export function verifyTokenFormat(req: Request): string{
     if (!req.headers.authorization && !req.cookies?.access_token) 
