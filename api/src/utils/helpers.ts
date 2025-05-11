@@ -217,16 +217,57 @@ export function convertHtmlToWhatsAppMessage(html: string): string {
     return $.text().trim(); // Retorna apenas o texto limpo
 }
 
-export function logErrorHandler(error: any){
-    console.error(error)
-    return  (error?.response)
-        ? `Status: ${error?.response.status} - Data: ${JSON.stringify(error?.response?.data, null, 2) || error?.response?.data}`
-        : error?.stack || error?.message || error
-    ;
-        
+export function logErrorHandler(error: any): string {
+    console.error(error);
+    return error?.response
+        ? `REQUEST >> ${
+            error.config?.method
+        } ${
+            error?.config?.url
+        }${
+            error.config.params
+            ? '?' + qs.stringify(error.config.params)
+            : '' 
+        } Body: ${JSON.stringify(error?.config?.data || {})} - RESPONSE >> Status: ${error?.response.status} - Data: ${
+              JSON.stringify(error?.response?.data, null, 2) ||
+              error?.response?.data
+          }`
+        : error?.stack || error?.message || error;
 }
 
 export function getWeekOfMonth(date: string | Date) {
     const startOfMonth = moment(date).startOf('month'); // Primeiro dia do mês
     return moment(date).diff(startOfMonth, 'weeks') + 1; // Diferença de semanas + 1
 }
+
+
+export const statesApproximate: Record<string, string[]> = {
+    AC: ['AM', 'RO'],
+    AL: ['BA', 'PE', 'SE'],
+    AP: ['PA'],
+    AM: ['AC', 'RO', 'MT', 'PA', 'RR'],
+    BA: ['AL', 'GO', 'MG', 'PE', 'PI', 'SE', 'TO', 'ES'],
+    CE: ['PB', 'PE', 'PI', 'RN'],
+    DF: ['GO'],
+    ES: ['BA', 'MG', 'RJ'],
+    GO: ['BA', 'DF', 'MG', 'MT', 'MS', 'TO'],
+    MA: ['PA', 'PI', 'TO'],
+    MT: ['AM', 'GO', 'MS', 'PA', 'RO', 'TO'],
+    MS: ['GO', 'MT', 'MG', 'PR', 'SP'],
+    MG: ['BA', 'DF', 'ES', 'GO', 'MS', 'RJ', 'SP'],
+    PA: ['AM', 'AP', 'MA', 'MT', 'RR', 'TO'],
+    PB: ['CE', 'PE', 'RN'],
+    PR: ['MS', 'SC', 'SP'],
+    PE: ['AL', 'BA', 'CE', 'PB', 'PI'],
+    PI: ['BA', 'CE', 'MA', 'PE', 'TO'],
+    RJ: ['ES', 'MG', 'SP'],
+    RN: ['CE', 'PB'],
+    RO: ['AC', 'AM', 'MT'],
+    RR: ['AM', 'PA'],
+    RS: ['SC'],
+    SC: ['PR', 'RS'],
+    SE: ['AL', 'BA'],
+    SP: ['MG', 'MS', 'PR', 'RJ'],
+    TO: ['BA', 'GO', 'MA', 'MT', 'PA', 'PI']
+  };
+  
