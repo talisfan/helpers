@@ -269,5 +269,11 @@ export const statesApproximate: Record<string, string[]> = {
     SE: ['AL', 'BA'],
     SP: ['MG', 'MS', 'PR', 'RJ'],
     TO: ['BA', 'GO', 'MA', 'MT', 'PA', 'PI']
-  };
+};
   
+export function isValidEmail(email: string) {
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regexEmail.test(email);
+}
+
+
