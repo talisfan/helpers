@@ -1,16 +1,7 @@
-import fs from "fs";
-import path from "path";
-import { threadId } from "worker_threads";
 import moment from "moment";
 
-const WRITE_LOGS = (process.env.WRITE_LOGS == 'true');
-if(WRITE_LOGS){
-    var logFilePath = path.resolve(__dirname, "..", "..", "log", `logs_${moment().format('YYYYMMDD')}.log`);
-    if (!fs.existsSync(logFilePath)) fs.writeFileSync(logFilePath, "");
-}
-
-function redirectConsole(outputFunction, prefix) {
-    return (...args) => {
+function redirectConsole(outputFunction: Function, prefix: string) {
+    return (...args: any[]) => {
         const logMessage = args
             .map((arg) =>  {
                 if (arg instanceof Error) {
@@ -22,9 +13,7 @@ function redirectConsole(outputFunction, prefix) {
             })
             .join(" ")
         ;
-        const formattedMessage = `[${new Date().toISOString()}][${String(process.env.NODE_ENV || 'dev').toUpperCase()}][${prefix}][Thread-${threadId}]${logMessage[0] != '[' ? ' ' + logMessage : logMessage}`;
-        
-        if(WRITE_LOGS) fs.appendFileSync(logFilePath, formattedMessage + '\n');
+        const formattedMessage = `[${moment().utc().subtract(3, 'h').format('YYYY-MM-DDTHH:mm:ss-03:00')}][${prefix}]${logMessage[0] != '[' ? ' ' + logMessage : logMessage}`;
 
         outputFunction.apply(console, [formattedMessage]);
     };
@@ -34,5 +23,3 @@ console.log = redirectConsole(console.log, "LOG");
 console.error = redirectConsole(console.error, "ERROR");
 console.debug = redirectConsole(console.debug, "DEBUG");
 console.warn = redirectConsole(console.warn, "WARN");
-
-export default this;
